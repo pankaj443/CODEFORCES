@@ -1,0 +1,39 @@
+#include<cstdio>
+#include<cstring>
+#include<algorithm>
+#include<iostream>
+#define rep(i,l,r) for (int i=(l); i<=(r); i++)
+typedef long long ll;
+using namespace std;
+
+int k,a[20],pw[20],mod=998244353;
+struct P{ int x,y; }f[20][1050][2];
+ll l,r;
+
+P dfs(int x,int S,bool lim,bool b){
+	if (!x) return (P){1,0};
+	if (!lim && ~f[x][S][b].y) return f[x][S][b];
+	P ans=(P){0,0};
+	int ed=lim?a[x]:9;
+	rep(i,0,ed){
+		int S2=S|((b||i)<<i);
+		if (__builtin_popcount(S2)>k) continue;
+		P tmp=dfs(x-1,S2,lim&(i==ed),b||i);
+		ans.x=(ans.x+tmp.x)%mod; ans.y=(ans.y+tmp.y+1ll*i*pw[x-1]%mod*tmp.x%mod)%mod;
+	}
+	if (!lim) f[x][S][b]=ans;
+	return ans;
+}
+
+int calc(ll n){
+	int tot=0;
+	while (n) a[++tot]=n%10,n/=10;
+	memset(f,-1,sizeof(f));
+	return dfs(tot,0,1,0).y;
+}
+
+int main(){
+	pw[0]=1; rep(i,1,20) pw[i]=1ll*pw[i-1]*10%mod;
+	cin>>l>>r>>k; cout<<((calc(r)-calc(l-1))%mod+mod)%mod;
+	return 0;
+}
